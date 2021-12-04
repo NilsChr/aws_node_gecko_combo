@@ -4,50 +4,22 @@ import fs, { readdir } from "fs";
 import { createServer } from "http";
 
 const indexHtml = await readFile("index.html", { encoding: "utf-8" });
-const geckosJs = await readFile("frontend/geckos.io-client.2.1.2.min.js", {
-  encoding: "utf-8",
-});
-const connect = await readFile("frontend/connect.js", {
-  encoding: "utf-8",
-});
-const p5 = await readFile("frontend/p5.min.js", {
-  encoding: "utf-8",
-});
-const sketch = await readFile("frontend/sketch.js", {
-  encoding: "utf-8",
-});
-const state = await readFile("frontend/state.js", {
-  encoding: "utf-8",
-});
 
 const requestListener = async (req, res) => {
   if (req.url === "/")
     return res.writeHead(200, { "Content-Type": "text/html" }).end(indexHtml);
 
-  if (req.url === "/frontend/geckos.io-client.2.1.2.min.js")
-    return res
-      .writeHead(200, { "Content-Type": "application/javascript" })
-      .end(geckosJs);
+  try {
+    let file = await readFile("./" + req.url, {
+      encoding: "utf-8",
+    });
 
-  if (req.url === "/frontend/connect.js")
     return res
       .writeHead(200, { "Content-Type": "application/javascript" })
-      .end(connect);
-
-  if (req.url === "/frontend/p5.min.js")
-    return res
-      .writeHead(200, { "Content-Type": "application/javascript" })
-      .end(p5);
-
-  if (req.url === "/frontend/sketch.js")
-    return res
-      .writeHead(200, { "Content-Type": "application/javascript" })
-      .end(sketch);
-
-  if (req.url === "/frontend/state.js")
-    return res
-      .writeHead(200, { "Content-Type": "application/javascript" })
-      .end(state);
+      .end(file);
+  } catch (e) {
+    console.log(e);
+  }
 
   return res.writeHead(404).end();
 };
@@ -64,19 +36,24 @@ server.listen(3000, () => {
   console.log("server running on http://127.0.0.1:3000");
 });
 
+let players = [];
 io.onConnection((channel) => {
-  console.log(`${channel.id} connected`);
+  console.log(`${channel.id} connected.`);
   let player = {
     id: channel.id,
     x: 20,
     y: 20,
   };
   players.push(player);
-  channel.emit("players", players);
+  console.log(` Players online ${players.length}`);
+  channel.room.emit("players", players);
 
   channel.onDisconnect(() => {
     console.log(`${channel.id} got disconnected`);
+    channel.room.emit("server:playerDisconnected", channel.id);
+
     players = players.filter((p) => p.id != channel.id);
+    console.log("Players online: " + players.length);
   });
 
   channel.emit("chat message", `Welcome to the chat ${channel.id}!`);

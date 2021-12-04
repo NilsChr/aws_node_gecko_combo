@@ -29,6 +29,12 @@ channel.onConnect(function (error) {
     p.y = data.y;
   })
 
+  channel.on("server:playerDisconnected", function(id) {
+    console.log("Player Disconnected");
+    STATE.players = STATE.players.filter(p => p.id !== id);
+    console.log(STATE.players);
+  })
+
   channel.on("players", function (data) {
     console.log(STATE);
     console.log("event: players");
