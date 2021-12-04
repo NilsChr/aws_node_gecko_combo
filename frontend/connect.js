@@ -35,6 +35,11 @@ channel.onConnect(function (error) {
     console.log(STATE.players);
   })
 
+  channel.on('update', (snapshot) => {
+    // read the snapshot
+    STATE.SI.snapshot.add(snapshot);
+  });
+
   channel.on("players", function (data) {
     console.log(STATE);
     console.log("event: players");

@@ -1,4 +1,5 @@
 var STATE = {
+    SI: null,
     channel: null,
     myId: null,
     myPlayer: null,
@@ -34,14 +35,21 @@ var STATE = {
       if (STATE.input.MOVE_RIGHT) dx++;
       if (STATE.input.MOVE_DOWN) dy++;
       if (STATE.input.MOVE_UP) dy--;
-      this.move(dx, dy);
+      //this.move(dx, dy);
+      this.sendInput();
     };
   
     this.move = function (x, y) {
-      this.x += x;
-      this.y += y;
+      //this.x += x;
+      //this.y += y;
   
       STATE.channel.emit("client:playerMoved", this);
     };
+
+    this.sendInput = function() {
+      const data = [STATE.input.MOVE_LEFT,STATE.input.MOVE_RIGHT,STATE.input.MOVE_DOWN,STATE.input.MOVE_UP]
+      STATE.channel.emit("client:playerInput", data);
+
+    }
   }
   

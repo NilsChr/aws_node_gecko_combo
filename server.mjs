@@ -3,6 +3,11 @@ import { readFile } from "fs/promises";
 import fs, { readdir } from "fs";
 import { createServer } from "http";
 
+import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
+
+// initialize the library
+const SI = new SnapshotInterpolation();
+
 const indexHtml = await readFile("index.html", { encoding: "utf-8" });
 
 const requestListener = async (req, res) => {
@@ -37,6 +42,9 @@ server.listen(3000, () => {
 });
 
 let players = [];
+
+
+
 io.onConnection((channel) => {
   console.log(`${channel.id} connected.`);
   let player = {
@@ -63,6 +71,42 @@ io.onConnection((channel) => {
   });
 
   channel.on("client:playerMoved", (data) => {
-    channel.room.emit("server:playerMoved", data);
+    console.log(data);
+
+    //channel.room.emit("server:playerMoved", data);
+  });
+
+  channel.on("client:playerInput", (data) => {
+   // console.log(data);
+    
+    playerInput(channel.id, data);
+    //channel.room.emit("server:playerMoved", data);
   });
 });
+
+function playerInput(id, input) {
+  let player = players.find(p => p.id == id);
+  if(!player) return;
+
+  if(input[0]) player.x--;
+  if(input[1]) player.x++;
+  if(input[2]) player.y++;
+  if(input[3]) player.y--;
+
+}
+
+function update() {
+  // create a snapshot of the current world
+  const snapshot = SI.snapshot.create(players)
+
+  // add the snapshot to the vault in case you want to access it later (optional)
+  SI.vault.add(snapshot)
+
+  // send the snapshot to the client (using geckos.io or any other library)
+  //this.emit('update', snapshot)
+  io.emit('update', snapshot);
+}
+
+setInterval(function() {
+  update();
+}, 1000/15);
