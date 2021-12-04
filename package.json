@@ -4,7 +4,7 @@
   "description": "Simple chat app example with geckos.io",
   "scripts": {
     "start": "npm-run-all --parallel dev:*",
-    "dev:nodejs": "nodemon server/index.mjs",
+    "dev:nodejs": "nodemon server.mjs",
     "dev:browser": "live-server --port=8080"
   },
   "author": "Yannick Deubel (https://github.com/yandeu)",
