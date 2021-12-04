@@ -7,6 +7,7 @@ const geckosJs = await readFile('frontend/geckos.io-client.2.1.2.min.js', {
   encoding: 'utf-8',
 })
 
+/*
 const requestListener = async (req, res) => {
   if (req.url === '/')
     return res.writeHead(200, { 'Content-Type': 'text/html' }).end(indexHtml)
@@ -20,6 +21,7 @@ const requestListener = async (req, res) => {
 }
 
 const server = createServer(requestListener)
+*/
 
 const io = geckos({
   iceServers: process.env.NODE_ENV === 'production' ? iceServers : [],
